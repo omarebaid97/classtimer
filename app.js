@@ -3,25 +3,29 @@
 // schedule changes belong in config.js.
 // ============================================================================
 
-const TOTAL_PHASE_SEC = PHASE_TEMPLATE.reduce((s, p) => s + p.minutes * 60, 0);
-
 function toSec(hhmm) {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 3600 + m * 60;
 }
 
+function styleFor(phaseName) {
+  return PHASE_STYLES[phaseName] || DEFAULT_PHASE_STYLE;
+}
+
 // Periods with derived end times + per-phase offsets, sorted by start time.
+// Each period supplies its own phase list (name + minutes); color/emoji are
+// looked up by name from PHASE_STYLES.
 const PERIODS_SEC = PERIODS
   .map((p) => {
     const startSec = toSec(p.start);
     let cursor = startSec;
-    const phases = PHASE_TEMPLATE.map((phase, i) => {
+    const phases = p.phases.map((phase, i) => {
       const phaseStart = cursor;
       const phaseEnd = cursor + phase.minutes * 60;
       cursor = phaseEnd;
-      return { ...phase, index: i, startSec: phaseStart, endSec: phaseEnd };
+      return { ...phase, ...styleFor(phase.name), index: i, startSec: phaseStart, endSec: phaseEnd };
     });
-    return { label: p.label, startSec, endSec: startSec + TOTAL_PHASE_SEC, phases };
+    return { label: p.label, startSec, endSec: cursor, phases };
   })
   .sort((a, b) => a.startSec - b.startSec);
 
