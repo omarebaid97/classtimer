@@ -26,9 +26,12 @@ const PHASE_STYLES = {
 };
 const DEFAULT_PHASE_STYLE = { color: "#7B2D8E", emoji: "⭐" }; // Waluigi purple, used for any unrecognized phase name
 
-// One entry per class period. `label` shows on screen. All four classes now
-// run the identical phase list (name + minutes) — the school periods are
-// 1, 3, 4, and 5 (there is no period 2), labeled by house. A period's end
+// One entry per class period. `label` shows on screen. This is the schedule
+// for Monday-Thursday (and for any weekday not listed in DAY_OVERRIDES below).
+// Periods 1, 3 and 4 run the same 85-minute phase list (name + minutes);
+// Period 5 is shortened to 80 minutes (Fluency, Intro & Model and Partner
+// Practice are a bit shorter) so the day ends at 3:20 PM. The school periods
+// are 1, 3, 4, and 5 (there is no period 2), labeled by house. A period's end
 // time is computed automatically as its start time + the sum of the phases'
 // minutes, so class length updates on its own if you change a phase's
 // duration.
@@ -87,17 +90,89 @@ const PERIODS = [
     phases: [
       { name: "Do Now",                      minutes: 5 },
       { name: "Check Do Now",                minutes: 2 },
-      { name: "Fluency",                     minutes: 5 },
+      { name: "Fluency",                     minutes: 4 },
       { name: "Check Fluency",               minutes: 2 },
       { name: "A/I Block",                   minutes: 20 },
-      { name: "Intro & Model",               minutes: 11 },
-      { name: "Partner Practice",            minutes: 20 },
+      { name: "Intro & Model",               minutes: 9 },
+      { name: "Partner Practice",            minutes: 18 },
       { name: "Chromebooks + Scratch Paper", minutes: 5 },
       { name: "Exit Ticket",                 minutes: 10 },
       { name: "Pack Up",                     minutes: 5 },
     ],
   },
 ];
+
+// Weekdays that run a DIFFERENT schedule from PERIODS above. Any weekday
+// listed here (0=Sun, 1=Mon, ... 6=Sat) uses its own full list of periods
+// instead of PERIODS; every other weekday keeps using PERIODS. Each list is
+// written exactly like PERIODS (label, start, phases). Friday (5) is a short
+// day: four 65-minute periods with no A/I Block. Remember the day must ALSO
+// be in SCHEDULE_DAYS at the top of this file, or it is treated as no school.
+// To drop the Friday schedule, delete the `5: [...]` entry.
+const DAY_OVERRIDES = {
+  5: [
+    {
+      label: "Period 1 - Cornell",
+      start: "08:00",
+      phases: [
+        { name: "Do Now",                      minutes: 5 },
+        { name: "Check Do Now",                minutes: 2 },
+        { name: "Fluency",                     minutes: 5 },
+        { name: "Check Fluency",               minutes: 2 },
+        { name: "Intro & Model",               minutes: 11 },
+        { name: "Partner Practice",            minutes: 20 },
+        { name: "Chromebooks + Scratch Paper", minutes: 5 },
+        { name: "Exit Ticket",                 minutes: 10 },
+        { name: "Pack Up",                     minutes: 5 },
+      ],
+    },
+    {
+      label: "Period 3 - Brown",
+      start: "11:00",
+      phases: [
+        { name: "Do Now",                      minutes: 5 },
+        { name: "Check Do Now",                minutes: 2 },
+        { name: "Fluency",                     minutes: 5 },
+        { name: "Check Fluency",               minutes: 2 },
+        { name: "Intro & Model",               minutes: 11 },
+        { name: "Partner Practice",            minutes: 20 },
+        { name: "Chromebooks + Scratch Paper", minutes: 5 },
+        { name: "Exit Ticket",                 minutes: 10 },
+        { name: "Pack Up",                     minutes: 5 },
+      ],
+    },
+    {
+      label: "Period 4 - UT",
+      start: "12:05",
+      phases: [
+        { name: "Do Now",                      minutes: 5 },
+        { name: "Check Do Now",                minutes: 2 },
+        { name: "Fluency",                     minutes: 5 },
+        { name: "Check Fluency",               minutes: 2 },
+        { name: "Intro & Model",               minutes: 11 },
+        { name: "Partner Practice",            minutes: 20 },
+        { name: "Chromebooks + Scratch Paper", minutes: 5 },
+        { name: "Exit Ticket",                 minutes: 10 },
+        { name: "Pack Up",                     minutes: 5 },
+      ],
+    },
+    {
+      label: "Period 5 - Duke",
+      start: "13:15",
+      phases: [
+        { name: "Do Now",                      minutes: 5 },
+        { name: "Check Do Now",                minutes: 2 },
+        { name: "Fluency",                     minutes: 5 },
+        { name: "Check Fluency",               minutes: 2 },
+        { name: "Intro & Model",               minutes: 11 },
+        { name: "Partner Practice",            minutes: 20 },
+        { name: "Chromebooks + Scratch Paper", minutes: 5 },
+        { name: "Exit Ticket",                 minutes: 10 },
+        { name: "Pack Up",                     minutes: 5 },
+      ],
+    },
+  ],
+};
 
 // A gap between two periods this long (in minutes) or longer is labeled
 // "Lunch" on the Free Time screen instead of "Passing Period".

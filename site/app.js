@@ -12,10 +12,11 @@ function styleFor(phaseName) {
   return PHASE_STYLES[phaseName] || DEFAULT_PHASE_STYLE;
 }
 
-// Periods with derived end times + per-phase offsets, sorted by start time.
-// Each period supplies its own phase list (name + minutes); color/emoji are
-// looked up by name from PHASE_STYLES.
-const PERIODS_SEC = PERIODS
+// Builds periods with derived end times + per-phase offsets, sorted by start
+// time. Each period supplies its own phase list (name + minutes); color/emoji
+// are looked up by name from PHASE_STYLES.
+function buildPeriodsSec(periods) {
+  return periods
   .map((p) => {
     const startSec = toSec(p.start);
     let cursor = startSec;
@@ -28,6 +29,15 @@ const PERIODS_SEC = PERIODS
     return { label: p.label, startSec, endSec: cursor, phases };
   })
   .sort((a, b) => a.startSec - b.startSec);
+}
+
+// Period list for a weekday (0=Sun..6=Sat): the DAY_OVERRIDES list if that
+// weekday has one, otherwise PERIODS. Built once per weekday at load.
+const PERIODS_SEC_BY_DAY = [0, 1, 2, 3, 4, 5, 6].map((day) =>
+  buildPeriodsSec(
+    typeof DAY_OVERRIDES !== "undefined" && DAY_OVERRIDES[day] ? DAY_OVERRIDES[day] : PERIODS
+  )
+);
 
 function nowSecondsOfDay(d) {
   return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() + d.getMilliseconds() / 1000;
@@ -45,8 +55,9 @@ function addDays(d, n) {
 function nextSchoolDayFirstPeriod(fromDate) {
   for (let d = 1; d <= 14; d++) {
     const candidate = addDays(fromDate, d);
-    if (SCHEDULE_DAYS.includes(candidate.getDay())) {
-      candidate.setSeconds(PERIODS_SEC[0].startSec);
+    const periods = PERIODS_SEC_BY_DAY[candidate.getDay()];
+    if (SCHEDULE_DAYS.includes(candidate.getDay()) && periods.length > 0) {
+      candidate.setSeconds(periods[0].startSec);
       return candidate;
     }
   }
@@ -80,7 +91,9 @@ function getStatus(now) {
   const weekday = now.getDay();
   const secNow = nowSecondsOfDay(now);
 
-  if (!SCHEDULE_DAYS.includes(weekday)) {
+  const PERIODS_SEC = PERIODS_SEC_BY_DAY[weekday];
+
+  if (!SCHEDULE_DAYS.includes(weekday) || PERIODS_SEC.length === 0) {
     return { mode: "no-school", nextDate: nextSchoolDayFirstPeriod(now) };
   }
 
